@@ -22,11 +22,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors().and()
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/ecobici/v1/auth/**","/api/ecobici/v1/bicycles", "/api/ecobici/v1/bicycles/available").permitAll()
+                        .requestMatchers("/api/ecobici/v1/auth/**","/api/ecobici/v1/bicycles", "/api/ecobici/v1/bicycles/available", "/api/ecobici/v1/users", "/api/ecobici/v1/rents").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/ecobici/v1/users",
-                                "/api/ecobici/v1/rents").authenticated()
-
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
