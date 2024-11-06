@@ -1,5 +1,6 @@
 package com.bicigo.mvp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,15 +47,19 @@ public class User implements UserDetails {
     @Column(name="image_data", nullable = true)
     private String imageData;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bicycle> bicycles;
 
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private Roles role;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
