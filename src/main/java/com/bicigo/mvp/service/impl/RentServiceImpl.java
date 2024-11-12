@@ -6,6 +6,7 @@ import com.bicigo.mvp.exception.ValidationException;
 import com.bicigo.mvp.model.Availability;
 import com.bicigo.mvp.model.Bicycle;
 import com.bicigo.mvp.model.Rent;
+import com.bicigo.mvp.model.User;
 import com.bicigo.mvp.repository.BicycleRepository;
 import com.bicigo.mvp.repository.RentRepository;
 import com.bicigo.mvp.repository.UserRepository;
@@ -43,17 +44,21 @@ public class RentServiceImpl implements RentService {
 
     @Override
     public Rent create(RentDto rentDto) {
-        validateData(rentDto);
-        bicycleExists(rentDto.getBicycleId());
+        // Buscar el usuario y la bicicleta por sus IDs
+        User user = userRepository.findById(rentDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        Bicycle bicycle = bicycleRepository.findById(rentDto.getBicycleId())
+                .orElseThrow(() -> new RuntimeException("Bicycle not found"));
+
+        // Crear y configurar el nuevo Rent
         Rent rent = new Rent();
-
         rent.setRentStartDate(rentDto.getRentStartDate());
         rent.setRentEndDate(rentDto.getRentEndDate());
         rent.setRentPrice(rentDto.getRentPrice());
-        rent.setBicycle(bicycleRepository.findById(rentDto.getBicycleId()).orElse(null));
+        rent.setUser(user);
+        rent.setBicycle(bicycle);
 
-        bicycleAvailable(rent, rent.getRentStartDate(), rent.getRentEndDate());
         return rentRepository.save(rent);
     }
 
@@ -72,6 +77,10 @@ public class RentServiceImpl implements RentService {
         return rentRepository.findByBicycleId(bicycle_id);
     }
 
+    @Override
+    public List<Rent> getByUserId(Long user_id){
+        return rentRepository.findByUserId(user_id);
+    }
     private void userExists(Long user_id) {
         if (!userRepository.existsById(user_id)) {
             throw new ValidationException("User with id " + user_id + " does not exist");

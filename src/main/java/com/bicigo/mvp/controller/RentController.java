@@ -35,6 +35,14 @@ public class RentController {
         return new ResponseEntity<List<Rent>>(rentService.getByBicycleId(bicycleId), HttpStatus.OK);
     }
 
+    // URL: http://localhost:8080/api/ecobici/v1/rents/user/{userId}
+    // Method: GET
+    @Transactional(readOnly = true)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Rent>> getRentByUserId(@PathVariable(name = "userId") Long userId) {
+        return new ResponseEntity<List<Rent>>(rentService.getByUserId(userId), HttpStatus.OK);
+    }
+
     // URL: http://localhost:8080/api/ecobici/v1/rents
     // Method: POST
     @Transactional

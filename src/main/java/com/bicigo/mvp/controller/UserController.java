@@ -1,11 +1,13 @@
 package com.bicigo.mvp.controller;
 
 import com.bicigo.mvp.dto.UserDto;
+import com.bicigo.mvp.dto.UserUpdateDto;
 import com.bicigo.mvp.exception.ResourceNotFoundException;
 import com.bicigo.mvp.exception.ValidationException;
 import com.bicigo.mvp.model.User;
 import com.bicigo.mvp.repository.UserRepository;
 import com.bicigo.mvp.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/ecobici/v1/users")
+@Slf4j
 public class UserController {
     @Autowired
     private UserService userService;
@@ -62,15 +66,43 @@ public class UserController {
 
     // URL: http://localhost:8080/api/ecobici/v1/users/{userId}
     // Method: PUT
-    @Transactional
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable(name = "userId") Long userId, @RequestBody User user) {
-        existsUserByUserId(userId);
-        validateUser(user);
-        user.setId(userId);
-        User responseUser = ifDifferentOrEmptyUpdate(user);
-        return new ResponseEntity<User>(responseUser, HttpStatus.OK);
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long userId,
+            @RequestBody UserUpdateDto updateDTO) {
+        try {
+            User updatedUser = userService.updateUser(userId, updateDTO);
 
+            // Crear un DTO de respuesta limpio
+            UserUpdateDto response = UserUpdateDto.builder()
+                    .imageData(updatedUser.getImageData())
+                    .userBirthDate(updatedUser.getUserBirthDate())
+                    .userEmail(updatedUser.getUserEmail())
+                    .userFirstName(updatedUser.getUserFirstName())
+                    .userLastName(updatedUser.getUserLastName())
+                    .userPhone(updatedUser.getUserPhone())
+                    .build();
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Usuario actualizado exitosamente",
+                    "userId", updatedUser.getId(),
+                    "updatedData", response
+            ));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (RuntimeException e) {
+            log.error("Error al actualizar usuario {}: {}", userId, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", "Error al actualizar usuario",
+                            "message", e.getMessage()
+                    ));
+        }
     }
 
     // URL: http://localhost:8080/api/ecobici/v1/users/{userId}
@@ -139,32 +171,5 @@ public class UserController {
         if (userService.getUserById(userId) == null) {
             throw new ResourceNotFoundException("No existe un usuario con el id " + userId);
         }
-    }
-
-    private User ifDifferentOrEmptyUpdate(User user){
-        return userRepository.findById(user.getId()).map(userToUpdate -> {
-            if (user.getUserFirstName() != null && !user.getUserFirstName().isEmpty() && !user.getUserFirstName().equals(userToUpdate.getUserFirstName())) {
-                userToUpdate.setUserFirstName(user.getUserFirstName());
-            }
-            if (user.getUserLastName() != null && !user.getUserLastName().isEmpty() && !user.getUserLastName().equals(userToUpdate.getUserLastName())) {
-                userToUpdate.setUserLastName(user.getUserLastName());
-            }
-            if (user.getUserEmail() != null && !user.getUserEmail().isEmpty() && !user.getUserEmail().equals(userToUpdate.getUserEmail())) {
-                userToUpdate.setUserEmail(user.getUserEmail());
-            }
-            if (user.getUserPassword() != null && !user.getUserPassword().isEmpty() && !user.getUserPassword().equals(userToUpdate.getUserPassword())) {
-                userToUpdate.setUserPassword(user.getUserPassword());
-            }
-            if (user.getUserBirthDate() != null && !user.getUserBirthDate().equals(userToUpdate.getUserBirthDate())) {
-                userToUpdate.setUserBirthDate(user.getUserBirthDate());
-            }
-            if (user.getUserPhone() != null && !user.getUserPhone().isEmpty() && !user.getUserPhone().equals(userToUpdate.getUserPhone())) {
-                userToUpdate.setUserPhone(user.getUserPhone());
-            }
-            if (user.getImageData() != null && !user.getImageData().isEmpty() && !user.getImageData().equals(userToUpdate.getImageData())) {
-                userToUpdate.setImageData(user.getImageData());
-            }
-            return userService.updateUser(userToUpdate);
-        }).orElseThrow(() -> new ResourceNotFoundException("User not found with id " + user.getId()));
     }
 }
