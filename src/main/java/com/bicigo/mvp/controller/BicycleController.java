@@ -1,8 +1,10 @@
 package com.bicigo.mvp.controller;
 
+import com.bicigo.mvp.dto.BicycleUpdateDto;
 import com.bicigo.mvp.model.Bicycle;
 import com.bicigo.mvp.service.BicycleService;
 import com.bicigo.mvp.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +13,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/ecobici/v1/bicycles")
+@Slf4j
 public class BicycleController {
     @Autowired
     private UserService userService;
@@ -65,12 +70,85 @@ public class BicycleController {
         return new ResponseEntity<Bicycle>(bicycleService.createBicycle(userId, bicycle), HttpStatus.CREATED);
     }
 
+    /*// Method: PUT
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long userId,
+            @RequestBody UserUpdateDto updateDTO) {
+        try {
+            User updatedUser = userService.updateUser(userId, updateDTO);
+
+            // Crear un DTO de respuesta limpio
+            UserUpdateDto response = UserUpdateDto.builder()
+                    .imageData(updatedUser.getImageData())
+                    .userBirthDate(updatedUser.getUserBirthDate())
+                    .userEmail(updatedUser.getUserEmail())
+                    .userFirstName(updatedUser.getUserFirstName())
+                    .userLastName(updatedUser.getUserLastName())
+                    .userPhone(updatedUser.getUserPhone())
+                    .build();
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Usuario actualizado exitosamente",
+                    "userId", updatedUser.getId(),
+                    "updatedData", response
+            ));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (RuntimeException e) {
+            log.error("Error al actualizar usuario {}: {}", userId, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", "Error al actualizar usuario",
+                            "message", e.getMessage()
+                    ));
+        }
+    }*/
     // URL: http://localhost:8080/api/ecobici/v1/bicycles/{bicycleId}
     // Method: PUT
     @Transactional
     @PutMapping("/{bicycleId}")
-    public ResponseEntity<Bicycle> updateBicycleByBicycleId(@PathVariable(name = "bicycleId") Long bicycleId, @RequestBody Bicycle bicycle) {
-        return new ResponseEntity<Bicycle>(bicycleService.updateBicycle(bicycleId, bicycle), HttpStatus.OK);
+    public ResponseEntity<?> updateBicycle(
+            @PathVariable Long bicycleId,
+            @RequestBody BicycleUpdateDto updateDTO) {
+        try {
+            Bicycle updatedBicycle = bicycleService.updateBicycle(bicycleId, updateDTO);
+
+            // Crear un DTO de respuesta limpio
+            BicycleUpdateDto response = BicycleUpdateDto.builder()
+                    .bicycleDescription(updatedBicycle.getBicycleDescription())
+                    .bicycleModel(updatedBicycle.getBicycleModel())
+                    .bicycleName(updatedBicycle.getBicycleName())
+                    .bicyclePrice(updatedBicycle.getBicyclePrice())
+                    .bicycleSize(updatedBicycle.getBicycleSize())
+                    .imageData(updatedBicycle.getImageData())
+                    .build();
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Bicicleta actualizada exitosamente",
+                    "bicycleId", updatedBicycle.getId(),
+                    "updatedData", response
+            ));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (RuntimeException e) {
+            log.error("Error al actualizar bicicleta {}: {}", bicycleId, e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", "Error al actualizar bicicleta",
+                            "message", e.getMessage()
+                    ));
+        }
     }
 
     // URL: http://localhost:8080/api/ecobici/v1/bicycles/{bicycleId}

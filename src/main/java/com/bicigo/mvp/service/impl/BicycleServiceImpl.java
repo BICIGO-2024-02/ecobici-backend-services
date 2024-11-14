@@ -1,5 +1,7 @@
 package com.bicigo.mvp.service.impl;
 
+import com.bicigo.mvp.dto.BicycleUpdateDto;
+import com.bicigo.mvp.dto.UserUpdateDto;
 import com.bicigo.mvp.exception.ResourceNotFoundException;
 import com.bicigo.mvp.exception.ValidationException;
 import com.bicigo.mvp.model.Availability;
@@ -9,14 +11,22 @@ import com.bicigo.mvp.repository.AvailabilityRepository;
 import com.bicigo.mvp.repository.BicycleRepository;
 import com.bicigo.mvp.service.BicycleService;
 import com.bicigo.mvp.service.UserService;
+import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
+@Slf4j
 public class BicycleServiceImpl implements BicycleService {
+    @Autowired
+    private EntityManager entityManager;
     BicycleRepository bicycleRepository;
     UserService userService;
     AvailabilityRepository availabilityRepository;
@@ -101,6 +111,48 @@ public class BicycleServiceImpl implements BicycleService {
                 bicycles.add(bicycle);
         }
         return bicycles;
+    }
+
+    @Override
+    public Bicycle updateBicycle(Long bicycleId, BicycleUpdateDto updateDto) {
+        Bicycle existingUser = bicycleRepository.findById(bicycleId)
+                .orElseThrow(() -> new RuntimeException("Bicicleta no encontrada"));
+
+        try {
+            if (isEmptyDTO(updateDto)) {
+                throw new IllegalArgumentException("No se proporcionaron datos para actualizar");
+            }
+
+            bicycleRepository.updateBicycle(
+                    bicycleId,
+                    updateDto.getBicycleDescription(),
+                    updateDto.getBicycleModel(),
+                    updateDto.getBicycleName(),
+                    updateDto.getBicyclePrice(),
+                    updateDto.getBicycleSize(),
+                    updateDto.getImageData()
+            );
+
+            entityManager.clear();
+
+            return bicycleRepository.findById(bicycleId)
+                    .orElseThrow(() -> new RuntimeException("Error al recuperar bicicleta actualizada"));
+
+        } catch (Exception e) {
+            log.error("Error al actualizar el usuario {}: {}", bicycleId, e.getMessage());
+            throw new RuntimeException("Error al actualizar el usuario: " + e.getMessage());
+        }
+
+    }
+
+    private boolean isEmptyDTO(BicycleUpdateDto dto) {
+        return dto.getImageData() == null &&
+                dto.getBicycleDescription() == null &&
+                dto.getBicycleName() == null &&
+                dto.getBicycleSize() == null &&
+                dto.getBicycleModel() == null &&
+                dto.getBicyclePrice() == 0.0
+                ;
     }
 
     private void existsBicycleByBicycleId(Long bicycleId) {
