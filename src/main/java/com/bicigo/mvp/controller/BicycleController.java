@@ -67,48 +67,10 @@ public class BicycleController {
     @Transactional
     @PostMapping("/{userId}")
     public ResponseEntity<Bicycle> createBicycleWithUserId(@PathVariable(name = "userId") Long userId, @RequestBody Bicycle bicycle) {
+        System.out.println("JSON Received: " + bicycle);
         return new ResponseEntity<Bicycle>(bicycleService.createBicycle(userId, bicycle), HttpStatus.CREATED);
     }
 
-    /*// Method: PUT
-    @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(
-            @PathVariable Long userId,
-            @RequestBody UserUpdateDto updateDTO) {
-        try {
-            User updatedUser = userService.updateUser(userId, updateDTO);
-
-            // Crear un DTO de respuesta limpio
-            UserUpdateDto response = UserUpdateDto.builder()
-                    .imageData(updatedUser.getImageData())
-                    .userBirthDate(updatedUser.getUserBirthDate())
-                    .userEmail(updatedUser.getUserEmail())
-                    .userFirstName(updatedUser.getUserFirstName())
-                    .userLastName(updatedUser.getUserLastName())
-                    .userPhone(updatedUser.getUserPhone())
-                    .build();
-
-            return ResponseEntity.ok(Map.of(
-                    "message", "Usuario actualizado exitosamente",
-                    "userId", updatedUser.getId(),
-                    "updatedData", response
-            ));
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
-
-        } catch (RuntimeException e) {
-            log.error("Error al actualizar usuario {}: {}", userId, e.getMessage());
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "error", "Error al actualizar usuario",
-                            "message", e.getMessage()
-                    ));
-        }
-    }*/
     // URL: http://localhost:8080/api/ecobici/v1/bicycles/{bicycleId}
     // Method: PUT
     @Transactional
@@ -127,6 +89,8 @@ public class BicycleController {
                     .bicyclePrice(updatedBicycle.getBicyclePrice())
                     .bicycleSize(updatedBicycle.getBicycleSize())
                     .imageData(updatedBicycle.getImageData())
+                    .pickUpLocation(updatedBicycle.getPickUpLocation())
+                    .deliveryLocation(updatedBicycle.getDeliveryLocation())
                     .build();
 
             return ResponseEntity.ok(Map.of(

@@ -39,6 +39,12 @@ public class Bicycle {
     @Column(name="image_data", nullable = true)
     private String imageData;
 
+    @Column(name="pick_up_location", nullable = false)
+    private String pickUpLocation;
+
+    @Column(name="delivery_location", nullable = false)
+    private String deliveryLocation;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false,

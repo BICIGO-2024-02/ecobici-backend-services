@@ -130,7 +130,9 @@ public class BicycleServiceImpl implements BicycleService {
                     updateDto.getBicycleName(),
                     updateDto.getBicyclePrice(),
                     updateDto.getBicycleSize(),
-                    updateDto.getImageData()
+                    updateDto.getImageData(),
+                    updateDto.getPickUpLocation(),
+                    updateDto.getDeliveryLocation()
             );
 
             entityManager.clear();

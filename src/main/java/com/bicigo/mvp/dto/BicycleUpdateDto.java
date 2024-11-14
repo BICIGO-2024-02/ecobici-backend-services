@@ -16,4 +16,6 @@ public class BicycleUpdateDto {
     private double bicyclePrice;
     private String bicycleSize;
     private String imageData;
+    private String pickUpLocation;
+    private String deliveryLocation;
 }

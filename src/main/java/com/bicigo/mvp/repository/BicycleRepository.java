@@ -16,6 +16,8 @@ public interface BicycleRepository extends JpaRepository<Bicycle, Long> {
             @Param("p_bicycle_name") String bicycleName,
             @Param("p_bicycle_price") double bicyclePrice,
             @Param("p_bicycle_size") String bicycleSize,
-            @Param("p_image_data") String imageData
+            @Param("p_image_data") String imageData,
+            @Param("p_pick_up_location") String pickUpLocation,
+            @Param("p_delivery_location") String deliveryLocation
     );
 }
