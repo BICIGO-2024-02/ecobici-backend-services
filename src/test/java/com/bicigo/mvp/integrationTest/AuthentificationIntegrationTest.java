@@ -50,8 +50,8 @@ public class AuthentificationIntegrationTest {
     @Test
     public void testLogin() throws Exception {
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUserEmail("correo@example.com");
-        loginRequest.setUserPassword("contraseña");
+        loginRequest.setUserEmail("andrea@gmail.com");
+        loginRequest.setUserPassword("12345");
 
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody = objectMapper.writeValueAsString(loginRequest);
